@@ -1,0 +1,15 @@
+name: image-caption-app
+metadata:
+  template: streamlit-aoai-vision
+
+infra:
+  provider: bicep
+  path: ./infra/main.bicep
+
+services:
+  web:
+    project: .
+    language: python
+    host: appservice
+
+
