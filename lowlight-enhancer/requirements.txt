@@ -1,0 +1,16 @@
+# Low-Light Image Enhancer Dependencies
+# Compatible with Python 3.9+
+
+# Web UI Framework
+flask>=3.0.0
+
+# Production WSGI Server (required for Azure App Service)
+gunicorn>=20.1.0
+
+# Image Processing Libraries
+opencv-python-headless>=4.8.0
+Pillow>=10.0.0
+numpy>=1.24.0
+
+# Audio compatibility for some dependencies (Python 3.14+)
+audioop-lts>=0.2.0

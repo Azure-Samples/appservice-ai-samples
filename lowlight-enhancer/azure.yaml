@@ -1,0 +1,13 @@
+name: lowlight-enhancer
+metadata:
+  template: lowlight-enhancer-template
+infra:
+  provider: bicep
+  path: ./infra
+
+services:
+  web:
+    project: .
+    language: python
+    host: appservice
+    module: web
