@@ -8,7 +8,6 @@ A Python application that enhances low-light images using adaptive histogram equ
 - 🎨 **Side-by-Side Comparison**: View original and enhanced images together
 - ⚙️ **Adjustable Parameters**: Fine-tune enhancement settings
 - 💻 **CPU-Only**: No GPU required - runs on any machine
-- 🐍 **Python 3.14 Compatible**: Works with the latest Python version
 - 🚀 **Real-time Processing**: Fast image enhancement
 
 ## How It Works
@@ -48,7 +47,7 @@ The application uses several image processing techniques:
 Run the application with:
 
 ```bash
-python app_flask.py
+python app.py
 ```
 
 The application will start a local web server at `http://127.0.0.1:5000`
