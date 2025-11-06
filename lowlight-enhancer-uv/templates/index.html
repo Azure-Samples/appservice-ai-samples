@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌙 Low-Light Image Enhancer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        h1 {
+            font-size: 2.5em;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #666;
+            font-size: 1.1em;
+        }
+        
+        .upload-section {
+            background: #f8f9fa;
+            border: 2px dashed #667eea;
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 30px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .upload-section:hover {
+            background: #e8ecf3;
+            border-color: #764ba2;
+        }
+        
+        .upload-section.dragover {
+            background: #e0e7ff;
+            border-color: #4f46e5;
+        }
+        
+        #fileInput {
+            display: none;
+        }
+        
+        .upload-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+        
+        .controls {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .control-group {
+            margin-bottom: 20px;
+        }
+        
+        .control-group:last-child {
+            margin-bottom: 0;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 0.95em;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: #d3d3d3;
+            outline: none;
+            -webkit-appearance: none;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+        }
+        
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+            border: none;
+        }
+        
+        .range-value {
+            display: inline-block;
+            float: right;
+            background: #667eea;
+            color: white;
+            padding: 2px 12px;
+            border-radius: 12px;
+            font-size: 0.9em;
+            font-weight: 600;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            width: 100%;
+        }
+        
+        button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .results {
+            display: none;
+            margin-top: 40px;
+        }
+        
+        .results.show {
+            display: block;
+        }
+        
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .image-container {
+            text-align: center;
+        }
+        
+        .image-container h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        .image-container img {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .loading.show {
+            display: block;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .error {
+            background: #fee;
+            border: 1px solid #fcc;
+            color: #c33;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            display: none;
+        }
+        
+        .error.show {
+            display: block;
+        }
+        
+        .tips {
+            background: #e0f2fe;
+            border-left: 4px solid #0ea5e9;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 30px;
+        }
+        
+        .tips h3 {
+            color: #075985;
+            margin-bottom: 10px;
+        }
+        
+        .tips ul {
+            margin-left: 20px;
+            color: #0c4a6e;
+        }
+        
+        .tips li {
+            margin: 8px 0;
+        }
+        
+        @media (max-width: 768px) {
+            .comparison {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌙 Low-Light Image Enhancer</h1>
+            <p class="subtitle">Transform your dark images with AI-powered enhancement</p>
+        </header>
+        
+        <div class="upload-section" id="uploadSection">
+            <div class="upload-icon">📤</div>
+            <h2>Click to upload or drag & drop</h2>
+            <p>Support JPG, PNG, WEBP and other common formats</p>
+            <input type="file" id="fileInput" accept="image/*">
+        </div>
+        
+        <div class="controls">
+            <div class="control-group">
+                <label>
+                    Contrast Limit
+                    <span class="range-value" id="clipLimitValue">2.0</span>
+                </label>
+                <input type="range" id="clipLimit" min="1.0" max="4.0" step="0.1" value="2.0">
+                <small style="color: #666;">Higher values increase contrast (1.0-4.0)</small>
+            </div>
+            
+            <div class="control-group">
+                <label>
+                    Gamma Correction
+                    <span class="range-value" id="gammaValue">1.2</span>
+                </label>
+                <input type="range" id="gamma" min="0.5" max="2.5" step="0.1" value="1.2">
+                <small style="color: #666;">Higher values brighten the image (0.5-2.5)</small>
+            </div>
+            
+            <div class="control-group">
+                <label>
+                    Brightness Boost
+                    <span class="range-value" id="brightnessValue">1.1</span>
+                </label>
+                <input type="range" id="brightness" min="1.0" max="1.5" step="0.05" value="1.1">
+                <small style="color: #666;">Overall brightness multiplier (1.0-1.5)</small>
+            </div>
+            
+            <button id="enhanceBtn" disabled>🚀 Enhance Image</button>
+        </div>
+        
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Enhancing your image...</p>
+        </div>
+        
+        <div class="error" id="error"></div>
+        
+        <div class="results" id="results">
+            <h2 style="text-align: center; margin-bottom: 20px;">Results</h2>
+            <div class="comparison">
+                <div class="image-container">
+                    <h3>📷 Original Image</h3>
+                    <img id="originalImg" alt="Original">
+                </div>
+                <div class="image-container">
+                    <h3>✨ Enhanced Image</h3>
+                    <img id="enhancedImg" alt="Enhanced">
+                </div>
+            </div>
+        </div>
+        
+        <div class="tips">
+            <h3>💡 Tips for Best Results</h3>
+            <ul>
+                <li><strong>Contrast Limit:</strong> Start with 2.0 and adjust up for very dark images</li>
+                <li><strong>Gamma Correction:</strong> Increase to brighten, decrease for more subtle changes</li>
+                <li><strong>Brightness Boost:</strong> Fine-tune the overall brightness after enhancement</li>
+                <li><strong>Best for:</strong> Underexposed photos, night shots, and low-light conditions</li>
+                <li><strong>CPU Mode:</strong> No GPU required - runs on any computer!</li>
+            </ul>
+        </div>
+    </div>
+    
+    <script>
+        let selectedFile = null;
+        
+        // Elements
+        const uploadSection = document.getElementById('uploadSection');
+        const fileInput = document.getElementById('fileInput');
+        const enhanceBtn = document.getElementById('enhanceBtn');
+        const loading = document.getElementById('loading');
+        const error = document.getElementById('error');
+        const results = document.getElementById('results');
+        const originalImg = document.getElementById('originalImg');
+        const enhancedImg = document.getElementById('enhancedImg');
+        
+        // Range inputs
+        const clipLimit = document.getElementById('clipLimit');
+        const gamma = document.getElementById('gamma');
+        const brightness = document.getElementById('brightness');
+        
+        const clipLimitValue = document.getElementById('clipLimitValue');
+        const gammaValue = document.getElementById('gammaValue');
+        const brightnessValue = document.getElementById('brightnessValue');
+        
+        // Update range values
+        clipLimit.addEventListener('input', (e) => {
+            clipLimitValue.textContent = e.target.value;
+        });
+        
+        gamma.addEventListener('input', (e) => {
+            gammaValue.textContent = e.target.value;
+        });
+        
+        brightness.addEventListener('input', (e) => {
+            brightnessValue.textContent = e.target.value;
+        });
+        
+        // Upload section click
+        uploadSection.addEventListener('click', () => {
+            fileInput.click();
+        });
+        
+        // File selection
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFile(e.target.files[0]);
+            }
+        });
+        
+        // Drag and drop
+        uploadSection.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadSection.classList.add('dragover');
+        });
+        
+        uploadSection.addEventListener('dragleave', () => {
+            uploadSection.classList.remove('dragover');
+        });
+        
+        uploadSection.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadSection.classList.remove('dragover');
+            
+            if (e.dataTransfer.files.length > 0) {
+                handleFile(e.dataTransfer.files[0]);
+            }
+        });
+        
+        function handleFile(file) {
+            if (!file.type.startsWith('image/')) {
+                showError('Please select a valid image file');
+                return;
+            }
+            
+            selectedFile = file;
+            enhanceBtn.disabled = false;
+            results.classList.remove('show');
+            error.classList.remove('show');
+            
+            // Show preview
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                uploadSection.innerHTML = `
+                    <img src="${e.target.result}" style="max-width: 200px; max-height: 200px; border-radius: 8px;">
+                    <p style="margin-top: 15px;">✅ Image loaded: ${file.name}</p>
+                    <p style="color: #666; font-size: 0.9em;">Click to select a different image</p>
+                `;
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        // Enhance button
+        enhanceBtn.addEventListener('click', async () => {
+            if (!selectedFile) return;
+            
+            enhanceBtn.disabled = true;
+            loading.classList.add('show');
+            error.classList.remove('show');
+            results.classList.remove('show');
+            
+            const formData = new FormData();
+            formData.append('image', selectedFile);
+            formData.append('clip_limit', clipLimit.value);
+            formData.append('gamma', gamma.value);
+            formData.append('brightness', brightness.value);
+            
+            try {
+                const response = await fetch('/enhance', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Enhancement failed');
+                }
+                
+                const data = await response.json();
+                
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                
+                // Display results
+                originalImg.src = data.original;
+                enhancedImg.src = data.enhanced;
+                results.classList.add('show');
+                
+                // Scroll to results
+                results.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                
+            } catch (err) {
+                showError(err.message);
+            } finally {
+                loading.classList.remove('show');
+                enhanceBtn.disabled = false;
+            }
+        });
+        
+        function showError(message) {
+            error.textContent = '❌ Error: ' + message;
+            error.classList.add('show');
+        }
+    </script>
+</body>
+</html>
